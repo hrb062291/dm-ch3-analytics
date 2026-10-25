@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analytics — Chapter 3</title>
+<meta name="description" content="Digital Marketing Essentials, Chapter 3: how web analytics works, choosing KPIs by site type, revenue per session, conversion funnels, attribution, and Google Analytics 4.">
+<style>
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --surface-2:#eef1f7; --ink:#0f1b2d; --muted:#56627a; --line:#dde2ec;
+  --accent:#1f5fd1; --accent-ink:#ffffff; --accent-soft:#e6eefc;
+  --teal:#0b8f7c; --teal-soft:#e3f5f2; --amber:#a5670f; --amber-soft:#fdf3e2;
+  --red:#c2410c; --red-soft:#fdece4; --purple:#6d3fc0; --purple-soft:#f0eafb;
+  --shadow:0 1px 2px rgba(15,27,45,.06),0 4px 16px rgba(15,27,45,.05); --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d131d; --surface:#151d2a; --surface-2:#1c2636; --ink:#e8edf6; --muted:#9aa6bc; --line:#2a3548;
+    --accent:#6c9cf5; --accent-ink:#0d131d; --accent-soft:#1c2a45;
+    --teal:#3cc7b1; --teal-soft:#14302c; --amber:#e7a94a; --amber-soft:#33281a;
+    --red:#f08a5d; --red-soft:#3a2219; --purple:#a988ec; --purple-soft:#2a2240;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d131d; --surface:#151d2a; --surface-2:#1c2636; --ink:#e8edf6; --muted:#9aa6bc; --line:#2a3548;
+  --accent:#6c9cf5; --accent-ink:#0d131d; --accent-soft:#1c2a45;
+  --teal:#3cc7b1; --teal-soft:#14302c; --amber:#e7a94a; --amber-soft:#33281a;
+  --red:#f08a5d; --red-soft:#3a2219; --purple:#a988ec; --purple-soft:#2a2240;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .5em}
+h2{font-size:1.75rem;letter-spacing:-.01em}
+h3{font-size:1.15rem;margin-top:1.6em}
+p{margin:0 0 1em}
+code{overflow-wrap:anywhere;font-size:.9em}
+ol.steps li>span{min-width:0}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px}
+nav.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;gap:6px;height:54px;overflow-x:auto;scrollbar-width:none}
+nav.top .wrap::-webkit-scrollbar{display:none}
+nav.top a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:.88rem;padding:6px 10px;border-radius:8px}
+nav.top a:hover{background:var(--surface-2);color:var(--ink)}
+nav.top a.brand{font-weight:700;color:var(--ink);margin-right:6px}
+#themeBtn{margin-left:auto;flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:1rem}
+header.hero{padding:56px 0 28px}
+.eyebrow{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700;margin-bottom:10px}
+.hero h1{font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.02em;margin-bottom:14px}
+.hero p.lead{font-size:1.15rem;color:var(--muted);max-width:720px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.88rem;text-decoration:none;color:var(--ink)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.kicker{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card h4{margin-bottom:6px;font-size:1rem}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+.card.tint-blue{background:var(--accent-soft);border-color:transparent;box-shadow:none}
+.card.tint-teal{background:var(--teal-soft);border-color:transparent;box-shadow:none}
+.card.tint-purple{background:var(--purple-soft);border-color:transparent;box-shadow:none}
+.card.tint-amber{background:var(--amber-soft);border-color:transparent;box-shadow:none}
+ul.clean{padding-left:1.1em;margin:0 0 1em}
+ul.clean li{margin:.2em 0}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:6px;background:var(--surface-2);color:var(--muted)}
+.callout{border-left:4px solid var(--amber);background:var(--amber-soft);padding:14px 18px;border-radius:0 12px 12px 0;margin:18px 0}
+.callout b.lbl{color:var(--amber);text-transform:uppercase;font-size:.75rem;letter-spacing:.08em;display:block;margin-bottom:4px}
+.callout ul{margin:.3em 0 0;padding-left:1.1em}
+.keyidea{border-left:4px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 12px 12px 0;margin:18px 0;font-weight:500}
+.case{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;box-shadow:var(--shadow);margin:18px 0}
+.case .head{padding:12px 20px;background:var(--surface-2);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.case .head strong{font-size:1.02rem}
+.case .body{padding:18px 20px}
+ol.steps{list-style:none;padding:0;margin:0;counter-reset:s;display:grid;gap:8px}
+ol.steps li{counter-increment:s;min-width:0;overflow-wrap:anywhere;display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+ol.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.85rem;display:grid;place-items:center}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:110px 1fr 70px;align-items:center;gap:10px;font-size:.9rem}
+.bar .track{height:14px;background:var(--surface-2);border-radius:7px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent);border-radius:7px;transition:width .25s}
+.bar b{text-align:right;font-variant-numeric:tabular-nums}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin:20px 0}
+.widget h3{margin-top:0}
+.widget .sub{color:var(--muted);font-size:.92rem;margin-top:-4px}
+.ctrl{display:grid;grid-template-columns:170px 1fr 80px;gap:12px;align-items:center;margin:10px 0}
+.ctrl label{font-size:.9rem;font-weight:600}
+.ctrl output{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select,input[type=number]{font:inherit;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.fields label{font-size:.85rem;font-weight:600;display:block;margin-bottom:4px}
+button.btn{font:inherit;font-weight:600;border:0;background:var(--accent);color:var(--accent-ink);padding:9px 16px;border-radius:9px;cursor:pointer}
+button.ghost{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:9px;cursor:pointer}
+.result{margin-top:14px;padding:14px;border-radius:10px;background:var(--surface-2)}
+.big{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stat .lbl{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.stat .delta{font-size:.85rem;font-weight:600}
+.up{color:var(--teal)} .down{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.win{color:var(--teal);font-weight:700}
+.lose{color:var(--red);font-weight:700}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.95rem;background:var(--surface-2);border-radius:8px;padding:10px 14px;margin:8px 0;overflow-x:auto;white-space:nowrap}
+/* flow diagram */
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin:14px 0}
+.flow .node{flex:1 1 150px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem}
+.flow .node b{display:block;margin-bottom:2px}
+.flow .arr{display:grid;place-items:center;color:var(--muted);font-size:1.3rem}
+/* raw data table */
+.raw td,.raw th{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem;white-space:nowrap;padding:6px 8px}
+.raw tr.hl td{background:var(--accent-soft)}
+/* funnel */
+.funnel{display:grid;gap:6px;margin:12px 0}
+.funnel .stage{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;font-size:.88rem}
+.funnel .stage .barbox{height:30px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+.funnel .stage .barbox div{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));transition:width .25s;min-width:2px}
+.funnel .stage b{text-align:right;font-variant-numeric:tabular-nums;font-size:.88rem}
+.funnel .rate{font-size:.8rem;color:var(--muted);padding-left:160px}
+/* picker buttons */
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+.opts button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
+.opts button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+/* yes/no */
+.yesno{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.yesno .no{background:var(--red-soft);border-radius:12px;padding:14px 16px}
+.yesno .yes{background:var(--teal-soft);border-radius:12px;padding:14px 16px}
+.yesno h4{margin-bottom:6px}
+details.ans{margin-top:10px;background:var(--surface-2);border-radius:10px;padding:10px 14px}
+details.ans summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details.ans[open] summary{margin-bottom:6px}
+/* attribution grouped bars */
+.abars{display:grid;gap:12px}
+.abars .grp{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;font-size:.88rem}
+.abars .stack{display:grid;gap:3px}
+.abars .stack div{height:12px;border-radius:4px;transition:width .25s}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.82rem;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* quiz */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin:12px 0}
+.q p.stem{font-weight:600;margin-bottom:10px}
+.q .choices{display:grid;gap:8px}
+.q button.c{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);padding:9px 12px;border-radius:9px;cursor:pointer}
+.q button.c:disabled{cursor:default}
+.q button.c.right{background:var(--teal-soft);border-color:var(--teal);font-weight:600}
+.q button.c.wrong{background:var(--red-soft);border-color:var(--red)}
+.q .exp{display:none;margin-top:10px;font-size:.92rem;color:var(--muted)}
+.q.done .exp{display:block}
+.score{position:sticky;bottom:12px;display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 16px;box-shadow:var(--shadow);margin-top:16px}
+footer{padding:36px 0 60px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+@media (max-width:600px){
+  .ctrl{grid-template-columns:1fr 70px}.ctrl label{grid-column:1/-1}
+  .yesno{grid-template-columns:1fr}
+  .bar{grid-template-columns:84px 1fr 60px}
+  .funnel .stage{grid-template-columns:1fr 80px}.funnel .stage span{grid-column:1/-1}.funnel .rate{padding-left:0}
+  .abars .grp{grid-template-columns:1fr}
+  .flow .arr{transform:rotate(90deg);flex-basis:100%}
+  section{padding:34px 0}
+}
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Chapter sections">
+  <div class="wrap">
+    <a class="brand" href="#top">Ch 3</a>
+    <a href="#how">How it works</a>
+    <a href="#kpis">KPIs</a>
+    <a href="#rps">RPS</a>
+    <a href="#diagnose">Diagnose</a>
+    <a href="#funnel">Funnel</a>
+    <a href="#attribution">Attribution</a>
+    <a href="#setup">Setup</a>
+    <a href="#ga4">GA4</a>
+    <a href="#quiz">Quiz</a>
+    <button id="themeBtn" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">◐</button>
+  </div>
+</nav>
+
+<div class="wrap" id="top">
+  <header class="hero">
+    <div class="eyebrow">Digital Marketing · Chapter 3</div>
+    <h1>Analytics</h1>
+    <p class="lead">Analytics isn't a report you glance at. It's how a marketer decides what to do next: which traffic to buy, which page to fix, which channel deserves the budget. Every number in this chapter should end in an action.</p>
+    <p style="font-weight:600;margin:18px 0 4px">Learning objectives</p>
+    <div class="chips">
+      <a class="chip" href="#kpis"><span class="dot"></span>Select the best KPIs for any type of website</a>
+      <a class="chip" href="#funnel"><span class="dot"></span>Find the most needed fix in an eCommerce conversion funnel</a>
+      <a class="chip" href="#attribution"><span class="dot"></span>Weigh the strengths and weaknesses of attribution methods</a>
+    </div>
+  </header>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="kicker">The mechanics</div>
+    <h2>How analytics works</h2>
+    <p>When a browser requests a webpage, the server sends back the page code. At the same moment, a small tracking script in that page reports the visit to an analytics server. Nothing is being tested; analytics simply <em>observes</em> what happened. Keep that in mind, because it is the root of the attribution problem later in the chapter.</p>
+    <div class="flow" aria-label="Analytics data flow">
+      <div class="node"><b>1 · Browser</b>Visitor requests a page.</div>
+      <div class="arr">→</div>
+      <div class="node"><b>2 · Web server</b>Sends the page code back.</div>
+      <div class="arr">→</div>
+      <div class="node"><b>3 · Tracking tag</b>Fires as the page loads, with device and source details.</div>
+      <div class="arr">→</div>
+      <div class="node"><b>4 · Analytics server</b>Stores the hit. Reports are built from these rows.</div>
+    </div>
+
+    <h3>Raw analytics data</h3>
+    <p>Every page load becomes one row. On its own a row is worthless. The value comes from stitching rows together by <b>cookie ID</b> (or a logged-in <b>User-ID</b>) to see one visitor's path through the site. Click a visitor below to trace their visit.</p>
+    <div class="opts" id="rawPick">
+      <button type="button" data-id="GA1.2-5323" aria-pressed="true">Visitor A</button>
+      <button type="button" data-id="GA1.1-1620">Visitor B</button>
+      <button type="button" data-id="GA1.3-6928">Visitor C</button>
+    </div>
+    <div class="tablewrap">
+      <table class="raw">
+        <thead><tr><th>Time</th><th>Page</th><th>Cookie ID</th><th>Source</th><th>Device</th><th>Browser</th><th>OS</th></tr></thead>
+        <tbody id="rawBody"></tbody>
+      </table>
+    </div>
+    <p id="rawMsg" style="font-size:.92rem;margin-top:10px"></p>
+    <p style="font-size:.85rem;color:var(--muted)">Hypothetical data, modeled on the textbook's example. The extra columns (source, device, browser, screen, OS) are what let you segment: mobile vs. desktop, paid vs. organic.</p>
+
+    <h3>Cookies</h3>
+    <div class="grid g3">
+      <div class="card"><h4>What a cookie is</h4><p>A small ID stored in the web browser. It is the usual way a site recognizes a returning visitor.</p></div>
+      <div class="card tint-teal"><h4>First-party</h4><p>Set by the site you're visiting. Google Analytics uses a first-party cookie, and the data isn't shared outside your Analytics account.</p></div>
+      <div class="card tint-purple"><h4>Third-party</h4><p>Set by another domain, usually an ad network, so it can follow a person across many sites.</p></div>
+    </div>
+    <div class="keyidea">A cookie is unique to one browser on one device, not to one person. Someone who browses on their phone and buys on their laptop shows up as <em>two</em> users unless they log in.</div>
+    <div class="callout"><b class="lbl">What changed since the textbook</b>
+      <ul>
+        <li>Safari and Firefox block third-party cookies by default. Google planned to remove them from Chrome, then reversed course in 2024–2025 and kept them. Cross-site tracking is still much less reliable than it was a decade ago.</li>
+        <li>Privacy rules (GDPR in Europe, state laws in the U.S.) mean many visitors decline analytics cookies. GA4 fills some of the gap with modeled data, so reports are partly estimates.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- KPIS -->
+<section id="kpis">
+  <div class="wrap">
+    <div class="kicker">Objective 1</div>
+    <h2>Choosing KPIs</h2>
+    <p>A website can report hundreds of metrics. A <b>KPI</b> (key performance indicator) is one of the few that tells you whether the business is working. Every site's KPIs fall into three buckets, and multiplying them gives you revenue:</p>
+    <div class="formula">Traffic × Conversion rate × Revenue per conversion = Revenue</div>
+    <p>The buckets stay the same. What fills them depends on the business model.</p>
+
+    <div class="opts" id="kpiPick">
+      <button type="button" data-k="retail" aria-pressed="true">Online retail</button>
+      <button type="button" data-k="lead">Lead generation</button>
+      <button type="button" data-k="media">Media (subscription + ads)</button>
+    </div>
+    <div class="grid g3" id="kpiCards"></div>
+    <p id="kpiWhy" style="font-size:.92rem;color:var(--muted);margin-top:12px"></p>
+
+    <div class="keyidea">The KPI set follows the business model, not the technology. Pages per session is a win for a news site and can be a warning sign for a store (shoppers who can't find what they want click around more).</div>
+  </div>
+</section>
+
+<!-- RPS -->
+<section id="rps">
+  <div class="wrap">
+    <div class="kicker">The most useful number</div>
+    <h2>Revenue per session (RPS)</h2>
+    <p>RPS is often overlooked, but it is the single number that tells you what a visit is worth. That makes it the number to compare against what a visit <em>costs</em>.</p>
+    <div class="grid g2">
+      <div class="card"><h4>Basic formula</h4><div class="formula">RPS = Total revenue ÷ Sessions</div><p style="font-size:.92rem">$50,000 ÷ 20,000 sessions = <b>$2.50</b></p></div>
+      <div class="card"><h4>Alternative formula</h4><div class="formula">RPS = Conversion rate × AOV</div><p style="font-size:.92rem">(Conversions ÷ Sessions) × (Revenue ÷ Conversions). Same answer, but it shows <em>which lever</em> moved.</p></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card tint-teal"><h4>Profit per session (PPS)</h4><p>RPS after the cost of goods sold or service costs. <b>Compare PPS to cost per click (CPC)</b>, not RPS. Revenue isn't profit.</p></div>
+      <div class="card tint-blue"><h4>Lead generation version</h4><p>One extra step: RPS = Conversion rate × Close rate × Average deal value. Every rate in the chain compounds.</p></div>
+    </div>
+
+    <div class="widget" id="rpsWidget">
+      <h3>Try it: what's your move?</h3>
+      <p class="sub">Load one of the five textbook activities (or enter your own numbers). Decide first: buy more traffic or pull back? Then check the math.</p>
+      <div class="opts" id="actPick">
+        <button type="button" data-a="0" aria-pressed="true">Activity 1</button>
+        <button type="button" data-a="1">Activity 2</button>
+        <button type="button" data-a="2">Activity 3</button>
+        <button type="button" data-a="3">Activity 4 (lead gen)</button>
+        <button type="button" data-a="4">Activity 5 (lead gen)</button>
+      </div>
+      <p id="actDesc" style="font-size:.92rem"></p>
+      <div class="fields">
+        <div><label for="iCr">Conversion rate (%)</label><input type="number" id="iCr" step="any" min="0"></div>
+        <div><label for="iClose">Close rate (%)</label><input type="number" id="iClose" step="any" min="0" max="100"></div>
+        <div><label for="iAov">Avg order / deal value ($)</label><input type="number" id="iAov" step="any" min="0"></div>
+        <div><label for="iMargin">Gross margin (%)</label><input type="number" id="iMargin" step="any" min="0" max="100"></div>
+        <div><label for="iCpc">Cost per click ($)</label><input type="number" id="iCpc" step="any" min="0"></div>
+      </div>
+      <p style="font-size:.82rem;color:var(--muted);margin:8px 0 0">Retail sites: leave close rate at 100%. Gross margin = share of revenue left after cost of goods or service costs (100% if there are none).</p>
+      <div class="opts" style="margin-top:14px">
+        <button type="button" data-guess="buy">My move: buy more traffic</button>
+        <button type="button" data-guess="pull">My move: pull back / fix first</button>
+      </div>
+      <div class="result">
+        <div class="stats">
+          <div class="stat"><div class="lbl">RPS</div><div class="big" id="oRps">—</div></div>
+          <div class="stat"><div class="lbl">PPS</div><div class="big" id="oPps">—</div></div>
+          <div class="stat"><div class="lbl">CPC</div><div class="big" id="oCpc">—</div></div>
+          <div class="stat"><div class="lbl">Margin per click</div><div class="big" id="oNet">—</div></div>
+        </div>
+        <p id="rpsMsg" style="font-size:.92rem;margin:12px 0 0"></p>
+      </div>
+    </div>
+    <div class="keyidea">Activity 4 is the trap: $5.00 RPS looks great against a $2.50 click. After $15,000 in service costs, profit per session is only $2.00, so every click loses 50 cents. Always compare <em>profit</em> per session to CPC.</div>
+  </div>
+</section>
+
+<!-- DIAGNOSE -->
+<section id="diagnose">
+  <div class="wrap">
+    <div class="kicker">Reading the numbers</div>
+    <h2>Diagnosing a site: always segment</h2>
+    <p>Here is last month's summary for a retail site. How useful is it?</p>
+    <div class="stats card">
+      <div class="stat"><div class="lbl">Sessions</div><div class="big">12,483</div></div>
+      <div class="stat"><div class="lbl">Conversions</div><div class="big">512</div></div>
+      <div class="stat"><div class="lbl">Revenue</div><div class="big">$17,541</div></div>
+      <div class="stat"><div class="lbl">Conv. rate</div><div class="big">4.1%</div></div>
+      <div class="stat"><div class="lbl">AOV</div><div class="big">$34.26</div></div>
+      <div class="stat"><div class="lbl">RPV</div><div class="big">$1.41</div></div>
+    </div>
+    <p style="margin-top:14px">Not very. There's no comparison and no breakdown, so there's nothing to act on. The same numbers split by channel tell a completely different story.</p>
+
+    <div class="widget">
+      <h3>Same retail site, by channel</h3>
+      <p class="sub">Pick a metric to rank the channels. Watch how the "average" hides very different populations.</p>
+      <div class="opts" id="chMetric">
+        <button type="button" data-m="sessions">Sessions</button>
+        <button type="button" data-m="cr" aria-pressed="true">Conversion rate</button>
+        <button type="button" data-m="aov">AOV</button>
+        <button type="button" data-m="rpv">Revenue per visit</button>
+      </div>
+      <div class="bars" id="chBars"></div>
+      <div class="tablewrap" style="margin-top:16px">
+        <table>
+          <thead><tr><th>Channel</th><th class="num">Sessions</th><th class="num">Conv.</th><th class="num">Revenue</th><th class="num">CR</th><th class="num">AOV</th><th class="num">RPV</th></tr></thead>
+          <tbody id="chTable"></tbody>
+        </table>
+      </div>
+      <h4 style="margin-top:18px">Questions to answer</h4>
+      <ul class="clean">
+        <li>Look at the spread of sessions across channels. Is anything noteworthy?</li>
+        <li>Paid search AOV is high. Why? What should the company do?</li>
+        <li>AOV on social and email is low. Can anything be done?</li>
+        <li>Email and direct convert very well. What can you infer?</li>
+        <li>Display has a low conversion rate. What action should be taken?</li>
+      </ul>
+      <details class="ans"><summary>Show discussion points</summary>
+        <ul class="clean">
+          <li><b>Referral</b> is the biggest channel (4,140 sessions) and the worst performer (1.6% CR, $0.61 RPV). Find out which sites send it. It may be low-intent or spam traffic.</li>
+          <li><b>Paid search</b> has the highest AOV ($64.77) and RPV ($3.62). Searchers looking for specific products buy bigger baskets. Bid more, and make sure landing pages match the search terms.</li>
+          <li><b>Email and direct</b> convert at about 10% but with small baskets. That's a returning-customer pattern: high intent, small orders. Try bundles or free-shipping thresholds to lift AOV.</li>
+          <li><b>Display</b> brings traffic that rarely buys. Tighten targeting, or treat display as awareness and stop judging it on last-click sales.</li>
+        </ul>
+      </details>
+    </div>
+
+    <h3>Lead generation site</h3>
+    <div class="grid g2">
+      <div class="card">
+        <table>
+          <tbody>
+            <tr><td>Sessions</td><td class="num">722</td></tr>
+            <tr><td>Leads</td><td class="num">65</td></tr>
+            <tr><td>New contracts</td><td class="num">28</td></tr>
+            <tr><td>Conversion rate</td><td class="num">9.0%</td></tr>
+            <tr><td>Close rate</td><td class="num">43.1%</td></tr>
+            <tr><td>Avg. contract value</td><td class="num">$550</td></tr>
+            <tr><td>RPV</td><td class="num">$21.33</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card tint-blue"><h4>Which of these are KPIs?</h4><p>Leads alone are not enough. A lead that never closes has no value. Close rate and average contract value are what make the lead count meaningful.</p></div>
+    </div>
+    <div class="tablewrap" style="margin-top:14px">
+      <table>
+        <thead><tr><th>By channel</th><th class="num">Organic</th><th class="num">Paid search</th><th class="num">Direct</th><th class="num">Referral</th><th class="num">Display / Social / Email</th></tr></thead>
+        <tbody>
+          <tr><td>Sessions</td><td class="num">126</td><td class="num">185</td><td class="num"><b>332</b></td><td class="num">79</td><td class="num">0</td></tr>
+          <tr><td>Leads</td><td class="num">3</td><td class="num">14</td><td class="num"><b>47</b></td><td class="num">1</td><td class="num">0</td></tr>
+          <tr><td>New contracts</td><td class="num">0</td><td class="num">2</td><td class="num"><b>26</b></td><td class="num">0</td><td class="num">0</td></tr>
+          <tr><td>Conversion rate</td><td class="num">2.4%</td><td class="num">7.6%</td><td class="num">14.2%</td><td class="num">1.3%</td><td class="num">—</td></tr>
+          <tr><td>Close rate</td><td class="num">0.0%</td><td class="num">14.3%</td><td class="num">55.3%</td><td class="num">0.0%</td><td class="num">—</td></tr>
+          <tr><td>Avg. contract value</td><td class="num">—</td><td class="num">$870</td><td class="num">$525</td><td class="num">—</td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <details class="ans"><summary>Why is "direct" the biggest and best channel?</summary>
+      <p>Direct traffic means Analytics couldn't tell where the visitor came from. For a lead-gen business, those visitors are probably people who heard about the company by word of mouth, got a business card, or clicked an untagged link in an email or text message. Organic and paid search convert poorly because strangers searching are early in their decision. Paid search closes less often but at a higher contract value ($870). Display, social and email show zero, which is a finding in itself: those channels aren't being used.</p>
+    </details>
+
+    <h3>Media site</h3>
+    <div class="grid g2">
+      <div class="card">
+        <table><tbody>
+          <tr><td>Sessions</td><td class="num">36,745</td></tr>
+          <tr><td>Page views</td><td class="num">94,232</td></tr>
+          <tr><td>Users</td><td class="num">15,931</td></tr>
+          <tr><td>Avg. page depth</td><td class="num">2.56</td></tr>
+          <tr><td>Avg. sessions per user</td><td class="num">2.31</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card tint-purple"><h4>Why sessions per user matters here</h4><p>An ad-supported site sells page views, so depth and repeat visits <em>are</em> the revenue drivers. A store mostly doesn't care how often a customer drops by; it cares whether they buy.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNNEL -->
+<section id="funnel">
+  <div class="wrap">
+    <div class="kicker">Objective 2</div>
+    <h2>The conversion funnel</h2>
+    <p>A hotel booking site has four steps. Each step has its own <b>micro-conversion rate</b>: the share of people who move on to the next step. Multiply them and you get the overall conversion rate.</p>
+    <div class="grid g4">
+      <div class="card"><div class="tag">Step 1</div><h4 style="margin-top:8px">Rates &amp; availability</h4><p>2,347,892</p></div>
+      <div class="card"><div class="tag">Step 2 · 15.7%</div><h4 style="margin-top:8px">Review itinerary</h4><p>367,495</p></div>
+      <div class="card"><div class="tag">Step 3 · 28.1%</div><h4 style="margin-top:8px">Guest info</h4><p>103,471</p></div>
+      <div class="card"><div class="tag">Step 4 · 70.1%</div><h4 style="margin-top:8px">Confirmation</h4><p>72,498</p></div>
+    </div>
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card tint-blue"><h4>Conversion rate</h4><p>72,498 ÷ 2,347,892 = <b>3.09%</b></p></div>
+      <div class="card tint-blue"><h4>Revenue per booking</h4><p>$23,464,220 ÷ 72,498 = <b>$323.65</b></p></div>
+      <div class="card tint-blue"><h4>Nights per booking</h4><p>143,285 ÷ 72,498 = <b>1.98</b> ($163.76 per night)</p></div>
+    </div>
+
+    <div class="widget" id="funWidget">
+      <h3>Try it: where should you invest?</h3>
+      <p class="sub">Change traffic, a step's rate, or a discount, and compare revenue and gross profit to today. Gross margin is 50% of the full booking price.</p>
+      <div class="opts" id="funPresets">
+        <button type="button" data-p="base" aria-pressed="true">Today</button>
+        <button type="button" data-p="traffic">+10% traffic</button>
+        <button type="button" data-p="step">Review itinerary → 20%</button>
+        <button type="button" data-p="disc">10% discount (CR → 3.5%)</button>
+      </div>
+      <div class="ctrl"><label for="fTraffic">Traffic change</label><input type="range" id="fTraffic" min="-20" max="30" step="1"><output id="oTraffic"></output></div>
+      <div class="ctrl"><label for="fS1">→ Review itinerary</label><input type="range" id="fS1" min="10" max="30" step="0.01"><output id="oS1"></output></div>
+      <div class="ctrl"><label for="fS2">→ Guest info</label><input type="range" id="fS2" min="15" max="50" step="0.1"><output id="oS2"></output></div>
+      <div class="ctrl"><label for="fS3">→ Confirmation</label><input type="range" id="fS3" min="50" max="95" step="0.1"><output id="oS3"></output></div>
+      <div class="ctrl"><label for="fDisc">Discount</label><input type="range" id="fDisc" min="0" max="25" step="1"><output id="oDisc"></output></div>
+      <div class="funnel" id="funBars"></div>
+      <div class="result">
+        <div class="stats">
+          <div class="stat"><div class="lbl">Conversion rate</div><div class="big" id="oFcr">—</div><div class="delta" id="dFcr"></div></div>
+          <div class="stat"><div class="lbl">Bookings</div><div class="big" id="oFconv">—</div><div class="delta" id="dFconv"></div></div>
+          <div class="stat"><div class="lbl">Revenue</div><div class="big" id="oFrev">—</div><div class="delta" id="dFrev"></div></div>
+          <div class="stat"><div class="lbl">Gross profit</div><div class="big" id="oFgp">—</div><div class="delta" id="dFgp"></div></div>
+        </div>
+        <p id="funMsg" style="font-size:.92rem;margin:12px 0 0"></p>
+      </div>
+    </div>
+    <div class="keyidea">The biggest leak is the first step: 84% of visitors leave after seeing rates and availability. Raising that one step from 15.7% to 20% adds about $6.5 million, far more than a 10% traffic increase, and you don't pay for it click by click.</div>
+    <div class="callout"><b class="lbl">The discount trap</b> A 10% discount that lifts conversion to 3.5% raises revenue slightly (about $23.9M) but cuts gross profit from about $11.7M to $10.6M. The business sells more and earns less. To break even, the discount would need to push conversion to about 3.86%.</div>
+  </div>
+</section>
+
+<!-- ATTRIBUTION -->
+<section id="attribution">
+  <div class="wrap">
+    <div class="kicker">Objective 3</div>
+    <h2>Attribution: which ad gets the credit?</h2>
+    <p>Jane, an online boutique, runs a banner ad on the New York Times website. A shopper buys from Jane. Did the ad cause the sale? Maybe. The same shopper might also have passed a billboard for Jane's sale, or found "Jane: Daily Boutique Deals" by searching "boutiques near me." Analytics sees only the clicks it can track, and never sees the billboard at all.</p>
+
+    <h3>The right question: compared to what?</h3>
+    <div class="yesno">
+      <div class="yes"><h4>The logic that works</h4><p>Compare people who saw the ad with people who didn't. If the exposed group buys at a higher rate, the ad had an effect.</p></div>
+      <div class="no"><h4>The catch: selection bias</h4><p>Ad platforms show ads to the people most likely to buy anyway. If the two groups differ, you may be measuring good targeting, not a good ad.</p></div>
+    </div>
+    <div class="keyidea">The comparison group has to be <b>randomly</b> assigned. Only randomization makes sure the ad, and nothing else, explains the difference.</div>
+
+    <div class="grid g2">
+      <div class="card"><span class="tag">Low-cost experiment</span><h4 style="margin-top:8px">The placebo ad</h4><p>Create two ads in the same ad group: your real ad and one for something unrelated (such as a charity). The platform randomly assigns people to one or the other, so you can compare purchase rates. The cost: you pay for the placebo impressions.</p></div>
+      <div class="card tint-teal"><span class="tag">Better experiment</span><h4 style="margin-top:8px">"Ghost ads"</h4><p>Google's method records the people who <em>would have</em> seen your ad and holds the ad back from a random share of them. You get a true control group without paying for irrelevant ads. Today Google offers this as <b>Conversion Lift</b> studies.</p></div>
+    </div>
+
+    <div class="widget" id="attrWidget">
+      <h3>Same sales, three rules</h3>
+      <p class="sub">Google's sample output credits the same conversions three ways. <b>Last interaction</b> gives all credit to the final click, <b>first interaction</b> to the first, and <b>linear</b> splits credit evenly. Choose a model to see who "wins."</p>
+      <div class="opts" id="attrPick">
+        <button type="button" data-m="0" aria-pressed="true">Last interaction</button>
+        <button type="button" data-m="1">Linear</button>
+        <button type="button" data-m="2">First interaction</button>
+      </div>
+      <div class="bars" id="attrBars"></div>
+      <p id="attrMsg" style="font-size:.92rem;margin:12px 0 0"></p>
+    </div>
+    <div class="keyidea">Attribution models don't measure cause. They divide credit by a rule. The model you pick decides which team gets the budget, so know the rule before you defend a budget with it.</div>
+    <div class="callout"><b class="lbl">What changed since the textbook</b>
+      <ul>
+        <li>The textbook's attribution screenshot (the source of these numbers) comes from Universal Analytics, which Google shut down in July 2023.</li>
+        <li>In 2023 Google removed first-click, linear, time-decay and position-based models from GA4 and Google Ads. Today GA4 offers <b>data-driven</b> (the default) and <b>last-click</b> models. The rule-based models are still worth understanding, because other tools use them and they show how much the rule matters.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section id="setup">
+  <div class="wrap">
+    <div class="kicker">Practical skills</div>
+    <h2>Setting up tracking</h2>
+    <div class="grid g3">
+      <div class="card"><h4>Google Tag Manager</h4><p>A container for all of a site's tracking tags. The Google tag fires on every page load and sends the hit to Analytics. Marketers can add or change tags without waiting for a developer to redeploy the site.</p></div>
+      <div class="card"><h4>Link Google Ads</h4><p>Linking Ads and Analytics lets you see what paid visitors did after the click, and send Analytics conversions back to Ads for bidding.</p></div>
+      <div class="card"><h4>Link Search Console</h4><p>Without this link, the organic search queries that brought people to your site never reach Analytics. Paid and organic data stay in separate silos.</p></div>
+    </div>
+
+    <h3>Creating a custom event</h3>
+    <p>In GA4, everything a user does is an <b>event</b>. A conversion is simply an event you mark as important.</p>
+    <ol class="steps">
+      <li><span>Go to Admin, then Events.</span></li>
+      <li><span>Click "Create event."</span></li>
+      <li><span>Name it (for example, <code>registration_complete</code>).</span></li>
+      <li><span>Set matching conditions: <code>event_name</code> equals <code>page_view</code> AND <code>page_location</code> equals the thank-you page URL.</span></li>
+      <li><span>Mark the new event as a key event so it is counted as a conversion.</span></li>
+    </ol>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card tint-blue"><h4>Events built on events</h4><p>The demo store has an event that fires only when a purchase is over $60. It's built on the existing purchase event, filtered by value.</p></div>
+      <div class="card tint-amber"><h4>Where marketing needs engineering</h4><p>The purchase amount has to be passed into Analytics by the site's code. Plan what you'll measure <em>before</em> the site is built.</p></div>
+    </div>
+    <div class="callout"><b class="lbl">What changed since the textbook</b>
+      <ul>
+        <li>The "Universal Analytics tag" in Tag Manager is gone. GA4 uses the <b>Google tag</b>.</li>
+        <li>In 2024 GA4 renamed "conversions" to <b>key events</b>. "Conversions" now refers to key events imported into Google Ads.</li>
+        <li>Search Console is linked from GA4 under Admin, then Product links.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- GA4 -->
+<section id="ga4">
+  <div class="wrap">
+    <div class="kicker">Hands-on</div>
+    <h2>Exploring Google Analytics 4</h2>
+    <p>Google offers a free demo account with real data from the <b>Google Merchandise Store</b> (an ecommerce site) and <b>Flood-It!</b> (a mobile game). Open it now and work through the questions below.</p>
+    <p><a class="chip" href="https://support.google.com/analytics/answer/6367342" target="_blank" rel="noopener"><span class="dot"></span>Access the GA4 demo account</a></p>
+
+    <div class="grid g4">
+      <div class="card"><h4>Users</h4><p>Distinct people (really, browsers) who visited.</p></div>
+      <div class="card"><h4>New users</h4><p>People visiting for the first time in the period.</p></div>
+      <div class="card"><h4>Event count</h4><p>Everything users did. A volume number, not a performance number.</p></div>
+      <div class="card"><h4>Key events</h4><p>The events you decided matter: a checkout, a purchase, a sign-up.</p></div>
+    </div>
+    <div class="keyidea">Set a comparison date range before you read any number. A metric without a comparison is not analysis.</div>
+
+    <div class="grid g2">
+      <div class="case" style="margin:0"><div class="head"><span class="tag">Acquisition</span><strong>Where visitors come from</strong></div><div class="body">
+        <ul class="clean">
+          <li>How many users, new users, sessions and engaged sessions were there this month?</li>
+          <li>What is an <b>engaged session</b>? (Lasts 10+ seconds, has a key event, or has 2+ page views.)</li>
+          <li>Which channel had the highest average engagement time? The second highest?</li>
+          <li>Which channel produced the most key events? The highest key event rate? Are they the same channel?</li>
+          <li>Add a comparison for Chrome users. What share of users is on Chrome? Do Chrome users engage more or less than average?</li>
+        </ul>
+      </div></div>
+      <div class="case" style="margin:0"><div class="head"><span class="tag">Engagement</span><strong>What visitors do</strong></div><div class="body">
+        <ul class="clean">
+          <li>Which event occurred most?</li>
+          <li>Which key event occurred most?</li>
+          <li>Which of the top ten pages had the highest average engagement time?</li>
+          <li>Is high engagement time always good? (A confusing page can hold people too.)</li>
+        </ul>
+        <p style="font-size:.9rem;color:var(--muted)">The Engagement overview is mostly for orientation. The detail reports are where decisions come from.</p>
+      </div></div>
+      <div class="case" style="margin:0"><div class="head"><span class="tag">Monetization</span><strong>Was the traffic worth it?</strong></div><div class="body">
+        <ul class="clean">
+          <li>Open Ecommerce purchases and add a comparison for mobile users.</li>
+          <li>What share of purchases happened on mobile? What share of item views?</li>
+          <li>What does the gap say about browsing on mobile vs. buying on desktop?</li>
+          <li>Which product produced the most revenue?</li>
+        </ul>
+      </div></div>
+      <div class="case" style="margin:0"><div class="head"><span class="tag">Attribution</span><strong>Who gets credit</strong></div><div class="body">
+        <ul class="clean">
+          <li>Find the attribution reports (under Advertising) and the conversion paths report.</li>
+          <li>The default model is data-driven: an algorithm guesses which touchpoint "caused" the sale. Why should you be skeptical?</li>
+          <li>Why does so much revenue show up as Direct? What does "Direct × 2" mean?</li>
+          <li>When a path includes both Direct and Paid Search, Paid Search gets all the credit. Why does that make switching models change so little?</li>
+        </ul>
+      </div></div>
+    </div>
+    <div class="keyidea" style="margin-top:18px">People often browse on mobile and buy on desktop. Because cookies are per device, the phone visit and the laptop purchase can look like two different people. That's one more reason last-click reports undercount some channels.</div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="wrap">
+    <div class="kicker">Check yourself</div>
+    <h2>Chapter 3 quiz</h2>
+    <p>Ten questions. Pick an answer to see the explanation.</p>
+    <div id="quizBox"></div>
+    <div class="score"><span>Score: <b id="qScore">0</b> / <span id="qTotal">0</span> · answered <span id="qDone">0</span></span><button class="ghost" id="qReset" type="button">Start over</button></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Digital Marketing Essentials · Chapter 3: Analytics. Learning page for Jessup University students, based on the Stukent chapter lecture.</p>
+    <p>Interactive models on this page are simplified illustrations for learning. Data tables are the textbook's hypothetical examples.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  function money(x,d){d=d==null?2:d;return (x<0?'-$':'$')+Math.abs(x).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});}
+  function pct(x,d){return (x*100).toFixed(d==null?1:d)+'%';}
+  function pressGroup(g,b){g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});}
+  function initGroup(id,fn){var g=$(id);g.querySelectorAll('button').forEach(function(x){if(!x.hasAttribute('aria-pressed'))x.setAttribute('aria-pressed','false');});g.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;pressGroup(g,b);fn(b);});}
+
+  // theme
+  var root=document.documentElement, btn=$('themeBtn');
+  try{var saved=localStorage.getItem('dm-theme'); if(saved) root.setAttribute('data-theme',saved);}catch(e){}
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){cur=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+    var next=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('dm-theme',next);}catch(e){}
+  });
+
+  // raw data
+  var RAW=[
+    ['3:04:12','/home','GA1.2-5323','organic','desktop','Chrome','Windows'],
+    ['3:04:34','/home','GA1.3-6928','cpc','mobile','Chrome','iOS'],
+    ['3:04:18','/mensjeans.html','GA1.2-5323','/home','desktop','Chrome','Windows'],
+    ['3:04:20','/home','GA1.1-1620','(not set)','mobile','Chrome','Android'],
+    ['3:04:49','/womensbelts.html','GA1.1-1620','/home','mobile','Chrome','Android'],
+    ['3:05:21','/redstripedpolo.html','GA1.2-5323','/mensjeans.html','desktop','Chrome','Windows'],
+    ['3:05:29','/addedtocart.html','GA1.2-5323','/redstripedpolo.html','desktop','Chrome','Windows'],
+    ['3:05:37','/blackwovenbelt.html','GA1.1-1620','/womensbelts.html','mobile','Chrome','Android'],
+    ['3:06:02','/summerdresses.html','GA1.3-6928','/home','mobile','Chrome','iOS'],
+    ['3:06:40','/checkout.html','GA1.2-5323','/addedtocart.html','desktop','Chrome','Windows'],
+    ['3:07:15','/formaldresses.html','GA1.3-6928','/summerdresses.html','mobile','Chrome','iOS']
+  ];
+  var rawStory={
+    'GA1.2-5323':'<b>Visitor A</b> arrived from organic search on a Windows desktop, browsed jeans and a polo, added to cart, and reached checkout: five page loads, one session, high intent.',
+    'GA1.1-1620':'<b>Visitor B</b> came in on an Android phone with no recorded source (it shows as "(not set)"), looked at two belt pages, and left. If they later buy on a laptop, Analytics will see a different cookie.',
+    'GA1.3-6928':'<b>Visitor C</b> clicked a paid ad (cpc) on an iPhone and browsed dresses without adding to cart. The ad drove a visit, but not a sale, at least not yet.'
+  };
+  function raw(id){
+    $('rawBody').innerHTML=RAW.map(function(r){return '<tr'+(r[2]===id?' class="hl"':'')+'>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('');
+    $('rawMsg').innerHTML=rawStory[id];
+  }
+  initGroup('rawPick',function(b){raw(b.dataset.id);});
+  raw('GA1.2-5323');
+
+  // KPIs by site type
+  var KPI={
+    retail:{c:[['Traffic','Sessions'],['Conversion','Conversion rate'],['Revenue per conversion','Average order value (AOV) · Revenue per session']],why:'Retail counts sessions, not users, because a purchase decision usually happens within one visit.'},
+    lead:{c:[['Traffic','Users'],['Conversion','Conversion rate (visits → leads) · Close rate (leads → deals)'],['Revenue per conversion','Closed deal value · Revenue per session']],why:'Lead gen adds a second conversion step that happens offline, with a salesperson. A site that only counts form fills is optimizing the wrong end.'},
+    media:{c:[['Traffic','Sessions · Users (non-subscribers)'],['Conversion','Pages per session · Sessions per user per day · Conversion rate = new subscribers ÷ non-subscriber users'],['Revenue per conversion','Revenue per subscription · Trial conversion rate']],why:'For a media site, engagement is the product. Every extra page view is more ad inventory to sell.'}
+  };
+  var tints=['tint-blue','tint-teal','tint-purple'];
+  function kpi(k){
+    $('kpiCards').innerHTML=KPI[k].c.map(function(c,i){return '<div class="card '+tints[i]+'"><h4>'+c[0]+'</h4><p>'+c[1]+'</p></div>';}).join('');
+    $('kpiWhy').textContent=KPI[k].why;
+  }
+  initGroup('kpiPick',function(b){kpi(b.dataset.k);});
+  kpi('retail');
+
+  // RPS activities
+  var ACT=[
+    {d:'Retail: 10,000 sessions, 100 conversions, $20,000 revenue, $8,000 cost of goods sold, CPC $0.45.',cr:1,close:100,aov:200,m:60,cpc:0.45},
+    {d:'Digital product: 3,850 sessions, 104 conversions, $3,210 revenue, $0 cost of goods sold, CPC $0.90.',cr:104/3850*100,close:100,aov:3210/104,m:100,cpc:0.90},
+    {d:'Retail, rates only: 3% conversion rate, $125 AOV, CPC $2.20. No cost data, so margin is set to 100%. What margin would make this a bad buy?',cr:3,close:100,aov:125,m:100,cpc:2.20},
+    {d:'Lead gen: 5,000 sessions, 420 leads, 180 closed deals, $25,000 revenue, $15,000 service costs, CPC $2.50.',cr:420/5000*100,close:180/420*100,aov:25000/180,m:40,cpc:2.50},
+    {d:'Lead gen, rates only: 7% conversion rate, 75% close rate, $1,500 average deal, CPC $25. No cost data.',cr:7,close:75,aov:1500,m:100,cpc:25}
+  ];
+  var guess=null;
+  function round(x,d){var p=Math.pow(10,d);return Math.round(x*p)/p;}
+  function loadAct(i){
+    var a=ACT[i]; $('actDesc').textContent=a.d;
+    $('iCr').value=round(a.cr,3); $('iClose').value=round(a.close,3); $('iAov').value=round(a.aov,2); $('iMargin').value=a.m; $('iCpc').value=a.cpc;
+    guess=null; document.querySelectorAll('[data-guess]').forEach(function(x){x.setAttribute('aria-pressed','false');});
+    rps();
+  }
+  function rps(){
+    var cr=+$('iCr').value/100, cl=+$('iClose').value/100, aov=+$('iAov').value, m=+$('iMargin').value/100, cpc=+$('iCpc').value;
+    var r=cr*cl*aov, p=r*m, net=p-cpc;
+    $('oRps').textContent=money(r); $('oPps').textContent=money(p); $('oCpc').textContent=money(cpc);
+    $('oNet').textContent=money(net); $('oNet').className='big '+(net>=0?'win':'lose');
+    var verdict=net>=0?'buy':'pull', msg;
+    if(net>=0) msg='<b>Buy more traffic.</b> Each click earns '+money(p)+' in profit and costs '+money(cpc)+', leaving '+money(net)+' per click. You could bid up to '+money(p)+' and still break even.';
+    else msg='<b>Pull back or fix the site first.</b> Each click costs '+money(cpc)+' but earns only '+money(p)+' in profit, a loss of '+money(-net)+' per click. Raise the conversion rate or order value, or lower your bid below '+money(p)+'.';
+    if(m<1 && r>cpc && p<cpc) msg+=' Notice that revenue per session ('+money(r)+') is higher than CPC. Looking at revenue alone would have fooled you.';
+    if(guess) msg=(guess===verdict?'<span class="win">✓ Your call matches the math.</span> ':'<span class="lose">✗ The math disagrees with your call.</span> ')+msg;
+    $('rpsMsg').innerHTML=msg;
+  }
+  initGroup('actPick',function(b){loadAct(+b.dataset.a);});
+  ['iCr','iClose','iAov','iMargin','iCpc'].forEach(function(id){$(id).addEventListener('input',rps);});
+  document.querySelectorAll('[data-guess]').forEach(function(b){
+    b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){document.querySelectorAll('[data-guess]').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});guess=b.dataset.guess;rps();});
+  });
+  loadAct(0);
+
+  // retail channels
+  var CH=[['Organic search',2129,72,1492.43],['Paid search',1430,80,5181.94],['Direct',141,13,445.38],['Display ads',2238,55,2204.44],['Referral',4140,68,2518.49],['Social media',792,58,1377.44],['Email',1613,166,4321.00]];
+  CH.forEach(function(c){c.cr=c[2]/c[1];c.aov=c[3]/c[2];c.rpv=c[3]/c[1];c.sessions=c[1];});
+  $('chTable').innerHTML=CH.map(function(c){return '<tr><td>'+c[0]+'</td><td class="num">'+c[1].toLocaleString()+'</td><td class="num">'+c[2]+'</td><td class="num">'+money(c[3])+'</td><td class="num">'+pct(c.cr)+'</td><td class="num">'+money(c.aov)+'</td><td class="num">'+money(c.rpv)+'</td></tr>';}).join('')+
+    '<tr><td><b>Site average</b></td><td class="num"><b>12,483</b></td><td class="num"><b>512</b></td><td class="num"><b>$17,541.12</b></td><td class="num"><b>4.1%</b></td><td class="num"><b>$34.26</b></td><td class="num"><b>$1.41</b></td></tr>';
+  var AVG={sessions:12483/7,cr:512/12483,aov:17541.12/512,rpv:17541.12/12483};
+  function fmt(m,v){return m==='sessions'?v.toLocaleString():m==='cr'?pct(v):money(v);}
+  function ch(m){
+    var s=CH.slice().sort(function(a,b){return b[m]-a[m];}), max=s[0][m];
+    $('chBars').innerHTML=s.map(function(c){var above=c[m]>=AVG[m];return '<div class="bar"><span>'+c[0]+'</span><div class="track"><div class="fill" style="width:'+(c[m]/max*100)+'%;background:'+(above?'var(--teal)':'var(--accent)')+'"></div></div><b>'+fmt(m,c[m])+'</b></div>';}).join('')+
+      '<p style="font-size:.82rem;color:var(--muted);margin:4px 0 0">Teal = above the site average ('+(m==='sessions'?'average per channel':fmt(m,AVG[m]))+').</p>';
+  }
+  initGroup('chMetric',function(b){ch(b.dataset.m);});
+  ch('cr');
+
+  // funnel
+  var BASE={traffic:2347892,s1:367495/2347892,s2:103471/367495,s3:72498/103471,price:23464220/72498};
+  var COST=BASE.price*0.5;
+  var baseConv=72498, baseRev=23464220, baseGP=baseConv*(BASE.price-COST);
+  var PRE={base:[0,15.7,28.1,70.1,0],traffic:[10,15.7,28.1,70.1,0],step:[0,20,28.1,70.1,0],disc:[0,17.74,28.1,70.1,10]};
+  function setPre(k){var p=PRE[k];$('fTraffic').value=p[0];$('fS1').value=p[1];$('fS2').value=p[2];$('fS3').value=p[3];$('fDisc').value=p[4];fun();}
+  function delta(el,now,was,isPct){var d=now-was; if(Math.abs(d)<1e-9){$(el).textContent='no change';$(el).className='delta';return;}
+    $(el).textContent=(d>0?'▲ ':'▼ ')+(isPct?(Math.abs(d)*100).toFixed(2)+' pts':(isPct===false?Math.round(Math.abs(d)).toLocaleString():money(Math.abs(d),0)));$(el).className='delta '+(d>0?'up':'down');}
+  function fun(){
+    var t=+$('fTraffic').value, a=+$('fS1').value/100, b=+$('fS2').value/100, c=+$('fS3').value/100, dsc=+$('fDisc').value/100;
+    $('oTraffic').textContent=(t>0?'+':'')+t+'%'; $('oS1').textContent=(a*100).toFixed(1)+'%'; $('oS2').textContent=(b*100).toFixed(1)+'%'; $('oS3').textContent=(c*100).toFixed(1)+'%'; $('oDisc').textContent=Math.round(dsc*100)+'%';
+    // use exact baseline rates when slider sits at the rounded default
+    if(Math.abs(a-0.157)<1e-6)a=BASE.s1; if(Math.abs(b-0.281)<1e-6)b=BASE.s2; if(Math.abs(c-0.701)<1e-6)c=BASE.s3;
+    var n0=BASE.traffic*(1+t/100), n1=n0*a, n2=n1*b, n3=n2*c;
+    var stages=[['Rates & availability',n0],['Review itinerary',n1],['Guest info',n2],['Confirmation',n3]], rates=[a,b,c];
+    $('funBars').innerHTML=stages.map(function(s,i){return (i?'<div class="rate">↓ '+(rates[i-1]*100).toFixed(1)+'% continue</div>':'')+'<div class="stage"><span>'+s[0]+'</span><div class="barbox"><div style="width:'+Math.max(1,s[1]/(BASE.traffic*1.3)*100)+'%"></div></div><b>'+Math.round(s[1]).toLocaleString()+'</b></div>';}).join('');
+    var price=BASE.price*(1-dsc), rev=n3*price, gp=n3*(price-COST), cr=n3/n0;
+    $('oFcr').textContent=pct(cr,2); $('oFconv').textContent=Math.round(n3).toLocaleString(); $('oFrev').textContent=money(rev/1e6,2)+'M'; $('oFgp').textContent=money(gp/1e6,2)+'M';
+    delta('dFcr',cr,baseConv/BASE.traffic,true); delta('dFconv',n3,baseConv,false); delta('dFrev',rev,baseRev); delta('dFgp',gp,baseGP);
+    var msg;
+    if(Math.abs(rev-baseRev)<1&&Math.abs(gp-baseGP)<1) msg='This is today: 3.09% overall. The first step loses 84% of visitors, so that is where to look first.';
+    else if(rev>baseRev&&gp<baseGP) msg='<b>Revenue up, profit down.</b> The discount buys volume with margin. The business looks busier and earns less.';
+    else if(gp>baseGP) msg='<b>Gross profit up '+money((gp-baseGP)/1e6,2)+'M.</b> '+(t>0&&dsc===0?'Remember that extra traffic usually has to be paid for, click by click.':'Compare this to what the change would cost to make.');
+    else msg='<b>Gross profit down '+money((baseGP-gp)/1e6,2)+'M.</b> This scenario makes the business worse.';
+    $('funMsg').innerHTML=msg;
+  }
+  initGroup('funPresets',function(b){setPre(b.dataset.p);});
+  ['fTraffic','fS1','fS2','fS3','fDisc'].forEach(function(id){$(id).addEventListener('input',function(){pressGroup($('funPresets'),null);fun();});});
+  setPre('base');
+
+  // attribution
+  var AT=[['Organic search',145,150.05,164],['Direct',142,130.67,111],['Paid search',31,31.54,30],['Referral',21,24.5,30],['Social network',7,9.03,11]];
+  var names=['Last interaction','Linear','First interaction'];
+  function attr(m){
+    var col=m+1, max=164;
+    $('attrBars').innerHTML=AT.map(function(r){var ch=(r[col]-r[1])/r[1];return '<div class="bar"><span>'+r[0]+'</span><div class="track"><div class="fill" style="width:'+(r[col]/max*100)+'%"></div></div><b>'+r[col].toFixed(r[col]%1?1:0)+'</b></div>'+(m? '<div style="font-size:.78rem;margin:-4px 0 0 120px" class="'+(ch>=0?'up':'down')+'">'+(ch>=0?'+':'')+(ch*100).toFixed(1)+'% vs. last interaction</div>':'');}).join('');
+    var msgs=['Last interaction rewards the channels people use right before buying: organic search and direct.','Linear spreads credit across every touch. Referral and social gain; direct loses a little.','First interaction rewards the channels that introduce people to the brand. Social gains 57% and referral 43%, while direct drops 22%. If you ran the social team, which model would you argue for?'];
+    $('attrMsg').innerHTML='<b>'+names[m]+'.</b> '+msgs[m];
+  }
+  initGroup('attrPick',function(b){attr(+b.dataset.m);});
+  attr(0);
+
+  // quiz
+  var Q=[
+    ['A cookie identifies...',['One person across all their devices','One browser on one device','One household','One IP address'],1,'Cookies live in a browser. A person with a phone and a laptop shows up as two users unless they log in (User-ID).'],
+    ['Which three buckets do every site\'s KPIs fall into?',['Impressions, clicks, likes','Traffic, conversion, revenue per conversion','Users, events, page views','Reach, frequency, recall'],1,'Traffic × conversion rate × revenue per conversion = revenue. The specific metrics in each bucket change by business model.'],
+    ['A site has a 2% conversion rate and a $50 AOV. What is its revenue per session?',['$0.50','$1.00','$2.50','$25.00'],1,'RPS = conversion rate × AOV = 0.02 × $50 = $1.00.'],
+    ['RPS is $5.00, profit per session is $2.00, and CPC is $2.50. What should you do?',['Buy more traffic: RPS is double the CPC','Pull back or fix the site: each click loses $0.50','Nothing; the campaign breaks even','Raise the bid to $5.00'],1,'Compare profit per session to CPC, not revenue. $2.00 − $2.50 = −$0.50 per click.'],
+    ['Which metric matters most for an ad-supported media site but much less for a retailer?',['Conversion rate','Average order value','Pages per session','Close rate'],2,'Page views are a media site\'s ad inventory. A store cares far more about whether visitors buy.'],
+    ['In the hotel funnel, only 15.7% of visitors move from Rates & Availability to Review Itinerary. What does that suggest?',['The confirmation page needs work','The biggest leak is at the top of the funnel','Traffic is too low','The discount is too small'],1,'The later steps convert at 28% and 70%. Most visitors are lost at the first step, so improvements there have the largest effect.'],
+    ['A discount raises bookings and revenue but lowers gross profit. What happened?',['The math is wrong','The extra volume didn\'t make up for the lower margin per booking','Revenue and profit always move together','Traffic fell'],1,'Each booking earns less. Unless conversion rises enough (to about 3.86% here), profit falls even though revenue rises.'],
+    ['Why can\'t you just compare people who saw your ad with people who didn\'t?',['Ad platforms don\'t report impressions','The groups may differ: platforms show ads to people already likely to buy','It costs too much','Analytics can\'t count purchases'],1,'That\'s selection bias. Only a randomly assigned control group shows the ad\'s real effect.'],
+    ['What is the advantage of Google\'s "ghost ads" method over running a placebo ad?',['It reaches more people','It creates a random control group without paying for irrelevant ads','It removes the need for cookies','It uses last-click attribution'],1,'Ghost ads record who would have seen the ad and withhold it from a random group, so you get an experiment without wasted spend.'],
+    ['In GA4, a "key event" (formerly a conversion) is...',['Any page view','An event you mark as important to the business','An event worth more than $60','A paid ad click'],1,'In GA4 everything is an event. You decide which ones count as key events, such as purchases or sign-ups.']
+  ];
+  var score=0,done=0;
+  function buildQuiz(){
+    score=0;done=0;
+    $('quizBox').innerHTML=Q.map(function(q,i){
+      return '<div class="q" data-i="'+i+'"><p class="stem">'+(i+1)+'. '+q[0]+'</p><div class="choices">'+q[1].map(function(c,j){return '<button type="button" class="c" data-j="'+j+'">'+c+'</button>';}).join('')+'</div><div class="exp">'+q[3]+'</div></div>';
+    }).join('');
+    $('qTotal').textContent=Q.length; upd();
+  }
+  function upd(){$('qScore').textContent=score;$('qDone').textContent=done;}
+  $('quizBox').addEventListener('click',function(e){
+    var b=e.target.closest('button.c'); if(!b) return;
+    var box=b.closest('.q'); if(box.classList.contains('done')) return;
+    var q=Q[+box.dataset.i], j=+b.dataset.j;
+    box.querySelectorAll('button.c').forEach(function(x,k){x.disabled=true; if(k===q[2]) x.classList.add('right');});
+    if(j===q[2]) score++; else b.classList.add('wrong');
+    box.classList.add('done'); done++; upd();
+  });
+  $('qReset').addEventListener('click',function(){buildQuiz(); $('quiz').scrollIntoView();});
+  buildQuiz();
+})();
+</script>
+</body>
+</html>
